@@ -2,7 +2,5 @@
 # Lasse Rintakumpu, 63555
 # 18.12.2013
 
-setwd("D:/Dropbox/Edu/Statistics/Peruskurssi B");
-pankki <- read.csv("D:/Dropbox/Edu/Statistics/Peruskurssi B/pankki.csv", sep=",", dec=",");
-
-file.path()
+# Ladataan havaintoaineisto
+talous <- read.csv("https://raw.github.com/rintakumpu/tilm3510/master/talous.csv", sep=";", dec=",");
