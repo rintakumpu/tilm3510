@@ -7,7 +7,8 @@ Harjoitustyön raportti löytyy osoitteesta: https://docs.google.com/document/d/
 ## Havaintoaineisto (`talous.csv`) ##
 
 * `supu`: Sukupuoli
-1.mies 2.nainen 
+	1. mies 
+	2. nainen 
 * `ika`: Ikä 
 * `koulutus`: Koulutus 
 1.kansakoulu/peruskoulu 2.lukio 3.koulututkinto 4.opistotutkinto 5.korkeakoulututkinto 
