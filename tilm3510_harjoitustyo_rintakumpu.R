@@ -122,7 +122,9 @@ t.test(nettotulot_m_muunnettu, nettotulot_n_muunnettu, alternative = "two.sided"
 # että pienen riskitaso, jolla testi voitaisiin hylätä on 0.006064.
 
 # => Miesten ja naisten nettopalkoissa on aineiston perusteella tilastollisesti
-# merkittävä ero miesten hyväksi.
+# merkittävä ero miesten hyväksi, olettaen, että sekä miesten että naisten
+# nettotulot ovat jakautuneet normaalisti ja että havainnot ovat toisistaan
+# riippumattomia.
 
 ###############################################
 # 2. Tyytyväisyys taloudelliseen tilanteeseen #
