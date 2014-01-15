@@ -6,6 +6,9 @@
 # havaintoaineisto haetaan verkon yli
 
 wd <- "C:\Users\rintakumpu\Documents\GitHub\tilm3510"
+# Local:
+wd <- "D:/Dropbox/Edu/Statistics/Peruskurssi B/Harjoitustyö/"
+setwd(wd)
 
 # Funktio kirjastojen asentamiselle / lataamiselle
 
@@ -22,6 +25,8 @@ lapply(c("moments","car", "alr3"), lataa_kirjasto)
 # Ladataan havaintoaineisto
 
 talous <- read.csv("https://raw.github.com/rintakumpu/tilm3510/master/talous.csv", sep=";", dec=",");
+# Local
+talous <- read.csv("talous.csv", sep=";", dec=",");
 
 # Ollaan kiinnostuttu nettotuloista (1.) sekä taloudellisesta tilanteesta (2.)
 # sukupuolen funktiona
@@ -35,13 +40,21 @@ nettotulot_miehet <- miehet$oma_tulo
 nettotulot_naiset <- naiset$oma_tulo
 
 # sekä tyytyväisyys taloudelliseen tilanteeseen (ordinaaliasteikko, 1--4)
+# Ryhmitellään tyytyvaisyys niin, 
+# että 1--2 => Tyytyväinen
+# 3--4 => Tyytymätön
 
-tyytyvaisyys_miehet <- miehet$taltyyt
-tyytyvaisyys_naiset <- naiset$taltyyt
+tyytyvaisyys <- matrix(nrow=2,ncol=2)
+rownames(tyytyvaisyys) <- c("Mies", "Nainen")
+colnames(tyytyvaisyys) <- c("Tyytyväinen", "Tyytymätön")
+tyytyvaisyys[1,1] <- sum(miehet$taltyyt==1 | miehet$taltyyt==2)
+tyytyvaisyys[1,2] <- sum(miehet$taltyyt==3 | miehet$taltyyt==4)
+tyytyvaisyys[2,1] <- sum(naiset$taltyyt==1 | naiset$taltyyt==2)
+tyytyvaisyys[2,2] <- sum(naiset$taltyyt==3 | naiset$taltyyt==4)
 
 # Tarkastellaan havaintoaineiston jakaumia graafisesti,
 # jonka jälkeen testataan havaintoaineistoissa mahdollisesti esiintyvien
-# erojen tilastollista merkitsevyyttä.
+# erojen tilastollista merkitsevyyttä. (Huom n:t mainittava.)
 
 #################
 # 1. Nettotulot #
@@ -79,17 +92,20 @@ powerTransform(nettotulot_naiset)
 # => ~ Neliöjuurimuunnos molemmille aineistoille 
 # tuottaa paremman normaalijakautuneisuuden.
 
-# Sovelletaan molempiin aineistoihin neliöjuurimuunnosta
+# Sovelletaan molempiin aineistoihin neliöjuurimuunnosta (mahdollinen, 
+# kaikki havainnot positiivisia kokonaislukuja)
 
 nettotulot_m_muunnettu <- nettotulot_miehet^0.5 # g1: -0.01, g2: 2.35
 nettotulot_n_muunnettu <- nettotulot_naiset^0.5 # g1: 0.005, g2: 2.58
 
 # Huomataan, että muunnos tasoittaa normaalikvantiilikuvioita.
 
-boxplot(nettotulot_m_muunnettu)
-boxplot(nettotulot_n_muunnettu)
 qqnorm(nettotulot_m_muunnettu)
+png('qqnorm_nettotulot_m_muunnettu.png')
+dev.off()
 qqnorm(nettotulot_n_muunnettu)
+png('qqnorm_nettotulot_n_muunnettu.png')
+dev.off()
 
 # Jatketaan siis muunnetuilla arvoilla
 # Otoskeskiarvot viittaavat tuloeroihin sukupuolten välillä.
@@ -130,5 +146,74 @@ t.test(nettotulot_m_muunnettu, nettotulot_n_muunnettu, alternative = "two.sided"
 # 2. Tyytyväisyys taloudelliseen tilanteeseen #
 ###############################################
 
+# Käytetään aineiston kuvailuun histogrammia sekä ryhmäpylväskuviota.
+# Kuvioiden y-akselit prosenttimuodossa, jolloin kuvaajat vastaavat
+# piste-estimaatteja.
 
-# Tallennetaan kuvaajat png-muodossa *** lisäämiseksi. 
+tyytyvaisyys_m <- hist(miehet$taltyyt, 0:4, breaks = c(0.5,1.5,2.5,3.5,4.5))
+tyytyvaisyys_m$density <- (tyytyvaisyys_m$counts / sum(tyytyvaisyys_m$counts)) * 100
+plot(tyytyvaisyys_m,
+     xlab="Tyytyväisyys\n(1: Erittäin tyytyväinen - 4: Erittäin tyytymätön)",
+     ylab="%",
+     main="Miesten tyytyväisyys taloudelliseen tilanteeseen",
+     col="skyblue", freq = F)
+
+png('tyytyvaisyys_mies.png')
+dev.off()
+
+tyytyvaisyys_n <- hist(naiset$taltyyt, 0:4, breaks = c(0.5,1.5,2.5,3.5,4.5))
+tyytyvaisyys_n$density <- (tyytyvaisyys_n$counts / sum(tyytyvaisyys_n$counts)) * 100
+plot(tyytyvaisyys_n,
+     xlab="Tyytyväisyys\n(1: Erittäin tyytyväinen - 4: Erittäin tyytymätön)",
+     ylab="%",
+     main="Naisten tyytyväisyys taloudelliseen tilanteeseen",
+     col="pink", freq = F)
+
+png('tyytyvaisyys_nainen.png')
+dev.off()
+
+tyytyvaisyys_percent <- matrix(tyytyvaisyys, 2, 2, dimnames = list(c("Mies","Nainen"), c("Tyytyväinen","Tyytymätön")))
+tyytyvaisyys_percent[1,1] <- (tyytyvaisyys[1,1]/sum(tyytyvaisyys[1,]))*100
+tyytyvaisyys_percent[1,2] <- (tyytyvaisyys[1,2]/sum(tyytyvaisyys[1,]))*100
+tyytyvaisyys_percent[2,1] <- (tyytyvaisyys[2,1]/sum(tyytyvaisyys[2,]))*100
+tyytyvaisyys_percent[2,2] <- (tyytyvaisyys[2,2]/sum(tyytyvaisyys[2,]))*100
+
+tyytyvaisyys_bp <- barplot(tyytyvaisyys_percent, beside = TRUE, 
+        main=c("Tyytyväisyys taloudelliseen tilanteeseen"),
+        col=c("skyblue","pink"), 
+        ylab="%", legend.text=c("Miehet","Naiset"), xlim = c(0,10))
+text(tyytyvaisyys_bp, 0, round(tyytyvaisyys_percent, 1),cex=1,pos=3) 
+
+# Maksimoidaan kuvaajien luotettavuus tallentamalla se png-muodossa
+# rf. http://xkcd.com/1301/
+
+png('tyytyvaisyys_yhteinen.png')
+dev.off()
+
+# Kuvailun perusteella miehet vaikuttaisivat naisia tyytyväisemmiltä
+# taloudelliseen tilanteeseensa.
+
+# Testataan onko miesten ja naisten tyytyväisyydessä taloudelliseen tilanteeseen
+# aineiston pohjalta tilastollista eroa. Käytetään kahden suhteellisen osuuden testausta.
+
+# Testataan suhteellisten osuuksien erotusta tasolla 0.05
+# H0: pm-pn = 0
+# Hv: pm-pn > 0 # Valitaan vastahypoteesiksi tehtävänannon mukaan
+# oletus, että miehet ovat naisia tyytyväisempiä.
+
+prop.test(tyytyvaisyys, alternative = "greater", conf.level=0.95)
+
+# data:  tyytyvaisyys
+# X-squared = 3.2138, df = 1, p-value = 0.03651
+# alternative hypothesis: greater
+# 95 percent confidence interval:
+#  0.0123195 1.0000000
+# sample estimates:
+#  prop 1    prop 2 
+# 0.5842697 0.4395604 
+
+# Pienin arvo, jolla nollahypoteesi voitaisiin
+# hylätä on 0.03651, hylätään nollahypoteesi tasolla 0.05. => Aineiston pohjalta
+# miehet vaikuttavat naisia tyytyväisemmilta taloudelliseen tilanteeseensa.
+
+# Oletukset: TODO
